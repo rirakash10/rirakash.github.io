@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Customers - Business Management System</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="header">
+    <h1>👥 Customers</h1>
+    <p>Customer Management</p>
+</header>
+
+<main class="container">
+
+    <button onclick="window.location.href='index.html'">
+        ← Dashboard
+    </button>
+
+    <br><br>
+
+    <div class="card">
+
+        <h2>নতুন Customer যোগ করুন</h2>
+
+        <br>
+
+        <input id="customerName" type="text" placeholder="Customer Name">
+
+        <br><br>
+
+        <input id="customerPhone" type="text" placeholder="Mobile Number">
+
+        <br><br>
+
+        <input id="customerAddress" type="text" placeholder="Address">
+
+        <br><br>
+
+        <button onclick="addCustomer()">
+            ➕ Add Customer
+        </button>
+
+    </div>
+
+    <br>
+
+    <div class="card">
+
+        <h2>Customer List</h2>
+
+        <br>
+
+        <input
+            id="searchCustomer"
+            type="text"
+            placeholder="🔎 Search customer..."
+            onkeyup="displayCustomers()"
+        >
+
+        <br><br>
+
+        <div id="customerList"></div>
+
+    </div>
+
+</main>
+
+<script>
+
+function getCustomers() {
+
+    return JSON.parse(
+        localStorage.getItem("customers") || "[]"
+    );
+
+}
+
+
+function saveCustomers(customers) {
+
+    localStorage.setItem(
+        "customers",
+        JSON.stringify(customers)
+    );
+
+}
+
+
+function addCustomer() {
+
+    const name =
+        document.getElementById("customerName").value.trim();
+
+    const phone =
+        document.getElementById("customerPhone").value.trim();
+
+    const address =
+        document.getElementById("customerAddress").value.trim();
+
+
+    if (!name) {
+
+        alert("Customer name দিন");
+
+        return;
+
+    }
+
+
+    const customers = getCustomers();
+
+
+    customers.push({
+
+        id: Date.now(),
+
+        name: name,
+
+        phone: phone,
+
+        address: address,
+
+        due: 0
+
+    });
+
+
+    saveCustomers(customers);
+
+
+    document.getElementById("customerName").value = "";
+
+    document.getElementById("customerPhone").value = "";
+
+    document.getElementById("customerAddress").value = "";
+
+
+    displayCustomers();
+
+}
+
+
+function deleteCustomer(id) {
+
+    if (!confirm("এই customer delete করবেন?")) {
+
+        return;
+
+    }
+
+
+    let customers = getCustomers();
+
+
+    customers = customers.filter(
+        customer => customer.id !== id
+    );
+
+
+    saveCustomers(customers);
+
+
+    displayCustomers();
+
+}
+
+
+function displayCustomers() {
+
+    const list =
+        document.getElementById("customerList");
+
+
+    const search =
+        document.getElementById("searchCustomer")
+        .value
+        .toLowerCase();
+
+
+    const customers = getCustomers();
+
+
+    const filtered = customers.filter(customer =>
+
+        customer.name.toLowerCase().includes(search) ||
+
+        customer.phone.toLowerCase().includes(search)
+
+    );
+
+
+    if (filtered.length === 0) {
+
+        list.innerHTML =
+            "<p>কোনো Customer পাওয়া যায়নি।</p>";
+
+        return;
+
+    }
+
+
+    list.innerHTML = filtered.map(customer => `
+
+        <div class="card" style="margin-bottom:10px">
+
+            <h3>${customer.name}</h3>
+
+            <p>📞 ${customer.phone || "নম্বর নেই"}</p>
+
+            <p>📍 ${customer.address || "ঠিকানা নেই"}</p>
+
+            <p>💰 বকেয়া: ৳${customer.due}</p>
+
+            <br>
+
+            <button
+                onclick="deleteCustomer(${customer.id})"
+            >
+                🗑️ Delete
+            </button>
+
+        </div>
+
+    `).join("");
+
+}
+
+
+displayCustomers();
+
+</script>
+
+</body>
+</html>
